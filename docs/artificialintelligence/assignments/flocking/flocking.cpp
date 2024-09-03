@@ -135,7 +135,20 @@ struct Separation {
   Separation() = default;
 
   Vector2 ComputeForce(const vector<Boid>& boids, int boidAgentIndex) {
-    return {};
+    Vector2 force = Vector2::zero;
+    for (int i = 0; i < boids.size(); i++) {
+      if (i != boidAgentIndex) {
+        Vector2 direction = boids[i].position - boids[boidAgentIndex].position;
+        double distance = direction.getMagnitude();
+        if (distance <= radius) {
+          Vector2 hat = direction / distance;
+          double strength = 1.0 / distance;
+          force += hat * strength;
+        }
+      }
+    }
+    force *= k;
+    return force;
   }
 };
 
