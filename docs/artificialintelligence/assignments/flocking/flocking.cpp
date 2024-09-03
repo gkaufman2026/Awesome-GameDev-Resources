@@ -101,7 +101,18 @@ struct Cohesion {
   Cohesion() = default;
 
   Vector2 ComputeForce(const vector<Boid>& boids, int boidAgentIndex) {
-    return {};
+    Vector2 centerMass = Vector2::zero;
+    int numberOfAgents = 0, i;
+    for (i = 0; i < boids.size(); i++) {
+      double distance = (boids[i].position - boids[boidAgentIndex].position).getMagnitude();
+      if (distance <= radius && i != boidAgentIndex) {
+        centerMass += boids[i].position;
+        numberOfAgents++;
+      }
+    }
+    centerMass /= numberOfAgents;
+    Vector2 agentForce = centerMass - boids[boidAgentIndex].position;
+    return agentForce.getMagnitude() <= radius ? (agentForce / radius) * k : Vector2::zero;
   }
 };
 
@@ -181,7 +192,7 @@ int main() {
     for (int i = 0; i < numberOfBoids; i++) // for every boid
     {
       newState[i].velocity += allForces[i] * deltaT;
-      newState[i].position += currentState[i].velocity * deltaT;
+      newState[i].position += newState[i].velocity * deltaT; // Tristian provided the change from currentState to newState rounds down
       cout << newState[i].position.x << " " << newState[i].position.y << " "
            << newState[i].velocity.x << " " << newState[i].velocity.y << endl;
     }
