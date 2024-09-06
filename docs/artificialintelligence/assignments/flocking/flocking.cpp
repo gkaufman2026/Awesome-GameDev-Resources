@@ -140,7 +140,20 @@ struct Alignment {
   Alignment() = default;
 
   Vector2 ComputeForce(const vector<Boid>& boids, int boidAgentIndex) {
-    return {};
+    Vector2 force = Vector2::zero;
+    int numberOfAgents = 0, i;
+    // same layout as cohesion
+    for (i = 0; i < boids.size(); i++) {
+      double distance = (boids[i].position - boids[boidAgentIndex].position).getMagnitude();
+      // checking if distance is less than or equal to radius without needing to check if radius contains itself
+      if (distance <= radius) {
+        // collecting the velocity of each boid for later average
+        force += boids[i].velocity;
+        numberOfAgents++;
+      }
+    }
+    force /= numberOfAgents;
+    return force * k;
   }
 };
 
@@ -153,8 +166,9 @@ struct Separation {
 
   Vector2 ComputeForce(const vector<Boid>& boids, int boidAgentIndex) {
     Vector2 force = Vector2::zero;
+    int i;
     // parsing for loop based on boid size
-    for (int i = 0; i < boids.size(); i++) {
+    for (i = 0; i < boids.size(); i++) {
       // if current index is not the agentIndex
       if (i != boidAgentIndex) {
         // calculate the direction of each neighbor and finding the magnitude of the distance
