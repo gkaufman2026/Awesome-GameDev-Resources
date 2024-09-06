@@ -144,8 +144,8 @@ struct Alignment {
     int numberOfAgents = 0, i;
     // same layout as cohesion
     for (i = 0; i < boids.size(); i++) {
-      double distance = (boids[i].position - boids[boidAgentIndex].position).getMagnitude();
-      // checking if distance is less than or equal to radius without needing to check if radius contains itself
+      double distance = (boids[i].velocity - boids[boidAgentIndex].velocity).getMagnitude();
+      // checking if velocity is less than or equal to radius without needing to check if radius contains itself
       if (distance <= radius) {
         // collecting the velocity of each boid for later average
         force += boids[i].velocity;
