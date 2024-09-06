@@ -176,7 +176,7 @@ struct Separation {
         double distance = direction.getMagnitude();
         // if distance is less than the radius
         if (distance <= radius) {
-          // take force vector and add each instance of the direction divided by the magnitude^2
+          // take force vector and add each instance of the direction divided by the sqr magnitude
           force += direction / direction.sqrMagnitude();
         }
       }
