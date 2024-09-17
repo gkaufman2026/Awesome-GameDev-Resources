@@ -1,23 +1,9 @@
-// add your imports here
-#include <cstdint>
-#include <fstream>
 #include <iostream>
 #include <istream>
+// REMOVED DEFINES FOR READABILITY
 #define n 624
-#define m 397
-#define w 32
-#define r 31
-#define UMASK (0xffffffffUL << r)
-#define LMASK (0xffffffffUL >> (w - r))
-#define a 0x9908b0dfUL
-#define u 11
-#define s 7
-#define t 15
-#define l 18
-#define b 0x9d2c5680UL
-#define c 0xefc60000UL
-#define f 1812433253UL
 
+// NOT USING AS MERSENNE TWISTER IS NOT RELEVANT TO TESTS
 const std::string TEST_FOLDER = "\\tests\\";
 
 struct MersenneTwister {
@@ -31,14 +17,14 @@ void initializeState(MersenneTwister* state, uint32_t seed) {
   stateArray[0] = seed;
 
   for (i = 1; i < n; i++) {
-    seed = f * (seed ^ seed >> w - 2) + i;
+    seed = 1812433253UL * (seed ^ seed >> 30) + i;
     stateArray[i] = seed;
   }
 
   state->stateIndex = 0;
 }
 
-unsigned __int32 permute(MersenneTwister* state) {
+uint32_t permute(MersenneTwister* state) {
   uint32_t* stateArray = &state->stateArray[0];
   int k = state->stateIndex;
 
@@ -47,14 +33,14 @@ unsigned __int32 permute(MersenneTwister* state) {
     j += n;
   }
 
-  uint32_t x = stateArray[k] & UMASK | stateArray[j] & LMASK;
+  uint32_t x = stateArray[k] & (0xffffffffUL << 31) | stateArray[j] & (0xffffffffUL >> 1);
   uint32_t xA = x >> 1;
 
   if (x & 0x00000001UL) {
-    xA ^= a;
+    xA ^= 0x9908b0dfUL;
   }
 
-  j = k - (n - m);
+  j = k - 227;
   if (j < 0) {
     j += n;
   }
@@ -67,20 +53,25 @@ unsigned __int32 permute(MersenneTwister* state) {
 
   state->stateIndex = k;
 
-  uint32_t y = x ^ (x >> u);
-  y = y ^ (y << s) & b;
-  y = y ^ (y << t) & c;
+  uint32_t y = x ^ (x >> 11);
+  y = y ^ (y << 7) & 0x9d2c5680UL;
+  y = y ^ (y << 15) & 0xefc60000UL;
   const uint32_t z = y ^ y >> 1;
   return z;
 }
 
 int main() {
-  unsigned int seed, N, min, max;
+  unsigned int seed, N, min, max, i;
   std::cin >> seed >> N >> min >> max;
   MersenneTwister state{};
   initializeState(&state, seed);
-  const auto res = permute(&state);
-  std::cout << min + res % (max - min + 1);
+
+  const auto result = permute(&state);
+  std::cout << "value = min + (result % (max - min + 1))" << std::endl;
+  std::cout << "value = " << min << " + (" << result << " % (" << max << " - " << min << " + " << 1 << "))" << std::endl;
+  std::cout << "value = " << min << " + (" << result << " % " << max - min + 1 << ")" << std::endl;
+  std::cout << "value = " << min << " + " << result % (max - min + 1) << std::endl;
+  std::cout << "value = " << min + (result % (max - min + 1)) << std::endl;
 }
 
 // XOR
